@@ -7,9 +7,12 @@ BUSYBOX_PATH="${BASE_PATH}/bin/busybox-armv7l"
 
 SCRIPT_PATH="${BASE_PATH}/scripts"
 ENTWARE_SETUP_PATH="${SCRIPT_PATH}/entware-setup.sh"
-AUTOSTART_PATH="${SCRIPT_PATH}/autostart.sh"
 
 ENTWARE_PATH="${BLACKBOX_PATH}/entware"
+AUTOSTART_PATH="${ENTWARE_PATH}/bin/autostart.sh"
+
+# Startup path for V2 goggles in DIY mode
+DJI_STARTUP_PATH="/system/bin/start_dji_system_wm150pro.sh"
 
 # Nameserver that should be used
 IP_NAMESERVER="1.1.1.1"
@@ -71,16 +74,17 @@ verifyPrerequesits() {
   }
 
   checkNameserver() {
-    echo " - Checking for nameserver"
+    echo " - Checking for nameserver..."
     grep "nameserver" $RESOLV_PATH >> $DEBUG_PATH 2>&1
   }
 
   configureNameserver() {
-    echo " - Configure nameserver"
+    echo " - Configure nameserver..."
     echo "nameserver ${IP_NAMESERVER}" >> $RESOLV_PATH
   }
 
   setupRNDIS() {
+    echo " - Setting up network device..."
     dhcptool ${RNDIS_DEVICE}
   }
 
@@ -155,15 +159,14 @@ fi
 
 PATH="/opt/bin:/opt/sbin:$PATH"
 
-# Update repository
-echo "  - Updating entware repository..."
+echo " - Updating entware repository..."
 opkg update >> $DEBUG_PATH 2>&1
 
-echo "Installing packages:"
-echo " - wget-ssl"
+echo " Installing packages:"
+echo "  - wget-ssl"
 opkg install wget-ssl >> $DEBUG_PATH 2>&1
 
-echo " - dinit..."
+echo "  - dinit"
 wget-ssl --no-check-certificate -q -P ./ipk ${DINIT_URL}
 opkg install ./ipk/dinit_*.ipk >> $DEBUG_PATH 2>&1
 if [ $? -ne 0 ]
@@ -178,6 +181,19 @@ if [ $? -ne 0 ]
 then
   echo "ERROR: Failed copying files"
   debugAndExit
+fi
+
+echo "Final Steps"
+echo " - checking autostart script..."
+cat ${DJI_STARTUP_PATH} | grep "${AUTOSTART_PATH}" >> $DEBUG_PATH 2>&1
+if [ $? -ne 0 ]
+then
+  echo " - attaching autostart script..."
+
+  # Attach autostart to the end of the startup file
+  echo "if [ -e ${AUTOSTART_PATH} ]; then" >> ${DJI_STARTUP_PATH}
+  echo "  ${AUTOSTART_PATH} &" >> ${DJI_STARTUP_PATH}
+  echo "fi" >> ${DJI_STARTUP_PATH}
 fi
 
 echo ""
