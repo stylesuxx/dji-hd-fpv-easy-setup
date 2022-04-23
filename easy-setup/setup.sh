@@ -28,7 +28,12 @@ DOMAIN="google.com"
 
 # URLs for resources that will be fetched during setup
 ENTWARE_URL="http://bin.entware.net/armv7sf-k3.2/installer/alternative.sh"
-DINIT_URL="xxxxx"
+DINIT_URL="https://github.com/stylesuxx/dji-hd-fpv-dinit/releases/download/v0.1.0/dinit_0.14.0pre_armv7-3.2.ipk"
+
+debugAndExit() {
+  echo "For more information check ${DEBUG_PATH}"
+  exit 1
+}
 
 verifyPrerequesits() {
   # Link needed busybox functionality
@@ -121,11 +126,6 @@ verifyPrerequesits() {
   fi
 }
 
-debugAndExit() {
-  echo "For more information check ${DEBUG_PATH}"
-  debugAndExit
-}
-
 echo "Validating prerequesits:"
 verifyPrerequesits
 
@@ -153,16 +153,18 @@ then
   wget -q -O - ${ENTWARE_URL} | sh >> $DEBUG_PATH 2>&1
 fi
 
-export PATH="/opt/bin:/opt/sbin:$PATH"
+PATH="/opt/bin:/opt/sbin:$PATH"
 
 # Update repository
 echo "  - Updating entware repository..."
 opkg update >> $DEBUG_PATH 2>&1
 
 echo "Installing packages:"
-# Install dinit
-echo " - Installing dinit..."
-# wget -P ./ipk ${DINIT_URL}
+echo " - wget-ssl"
+opkg install wget-ssl >> $DEBUG_PATH 2>&1
+
+echo " - dinit..."
+wget-ssl --no-check-certificate -q -P ./ipk ${DINIT_URL}
 opkg install ./ipk/dinit_*.ipk >> $DEBUG_PATH 2>&1
 if [ $? -ne 0 ]
 then
