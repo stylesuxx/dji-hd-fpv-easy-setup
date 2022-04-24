@@ -12,8 +12,8 @@ ENTWARE_PATH="${BLACKBOX_PATH}/entware"
 AUTOSTART_PATH="${ENTWARE_PATH}/bin/autostart.sh"
 
 DJI_STARTUP_PATH_GOGGLEV2="/system/bin/start_dji_system_wm150pro.sh"
-DJI_STARTUP_PATH_GOGGLEV1=""
-DJI_STARTUP_PATH_AIRUNIT=""
+DJI_STARTUP_PATH_GOGGLEV1="/system/bin/start_dji_system_wm150pro.sh"
+DJI_STARTUP_PATH_AIRUNIT="/system/bin/start_dji_system.sh"
 DJI_STARTUP_PATH_VISTA="/system/bin/start_dji_system.sh"
 
 DJI_STARTUP_PATH="/dev/null"
@@ -138,7 +138,7 @@ DEVICE=$(getprop "ro.product.device")
 DEVICE_REAL_NAME="UNKNOWN"
 if [ "$DEVICE" = "pigeon_wm170_gls" ]
 then
-  DEVICE_REAL_NAME="DJI HD FPV GOGGLE V2"
+  DEVICE_REAL_NAME="DJI HD FPV GOGGLE V1/V2"
   DJI_STARTUP_PATH=$DJI_STARTUP_PATH_GOGGLEV2
 fi
 
@@ -146,6 +146,12 @@ if [ "$DEVICE" = "pigeon_wm150_tiny" ]
 then
   DEVICE_REAL_NAME="DJI HD FPV Caddx Vista"
   DJI_STARTUP_PATH=$DJI_STARTUP_PATH_VISTA
+fi
+
+if [ "$DEVICE" = "pigeon_wm150" ]
+then
+  DEVICE_REAL_NAME="DJI HD FPV Air Unit"
+  DJI_STARTUP_PATH=$DJI_STARTUP_PATH_AIRUNIT
 fi
 
 if [ "$DEVICE_REAL_NAME" = "UNKNOWN" ]
