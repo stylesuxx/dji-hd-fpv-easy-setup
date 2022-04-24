@@ -3,7 +3,12 @@
 This is a collection of scripts aiming at helping you to get everything set up after rooting your DJI hardware.
 
 > **DISCLAMIER:** Run at your own risk, I am not responsible if you brick your goggles. Nothing bad should happen if you follow all the directions.
-> Further I have only tested this on the DJI HD FPV goggles V2. It should work the same on all other hardware though.
+> Further I have only tested this on the DJI HD FPV goggles V2 and the Caddx Vista. It should work the same on all other hardware though.
+
+## Confirmed Devices
+This setup script has been confirmed to be working with the following devices:
+* DJI HD FPV Goggles V2 (DYI mode)
+* Caddx Vista
 
 ## Prerequisites
 There are two things that you need to have set up [after you rooted your hardware](https://github.com/fpv-wtf/margerine):

@@ -11,8 +11,12 @@ ENTWARE_SETUP_PATH="${SCRIPT_PATH}/entware-setup.sh"
 ENTWARE_PATH="${BLACKBOX_PATH}/entware"
 AUTOSTART_PATH="${ENTWARE_PATH}/bin/autostart.sh"
 
-# Startup path for V2 goggles in DIY mode
-DJI_STARTUP_PATH="/system/bin/start_dji_system_wm150pro.sh"
+DJI_STARTUP_PATH_GOGGLEV2="/system/bin/start_dji_system_wm150pro.sh"
+DJI_STARTUP_PATH_GOGGLEV1=""
+DJI_STARTUP_PATH_AIRUNIT=""
+DJI_STARTUP_PATH_VISTA="/system/bin/start_dji_system.sh"
+
+DJI_STARTUP_PATH="/dev/null"
 
 # Nameserver that should be used
 IP_NAMESERVER="1.1.1.1"
@@ -31,7 +35,7 @@ DOMAIN="google.com"
 
 # URLs for resources that will be fetched during setup
 ENTWARE_URL="http://bin.entware.net/armv7sf-k3.2/installer/alternative.sh"
-DINIT_URL="https://github.com/stylesuxx/dji-hd-fpv-dinit/releases/download/v0.1.0/dinit_0.14.0pre_armv7-3.2.ipk"
+DINIT_URL="https://github.com/stylesuxx/dji-hd-fpv-dinit/releases/download/v0.1.1/dinit_0.14.0pre_armv7-3.2.ipk"
 
 debugAndExit() {
   echo "For more information check ${DEBUG_PATH}"
@@ -130,6 +134,29 @@ verifyPrerequesits() {
   fi
 }
 
+DEVICE=$(getprop "ro.product.device")
+DEVICE_REAL_NAME="UNKNOWN"
+if [ "$DEVICE" = "pigeon_wm170_gls" ]
+then
+  DEVICE_REAL_NAME="DJI HD FPV GOGGLE V2"
+  DJI_STARTUP_PATH=$DJI_STARTUP_PATH_GOGGLEV2
+fi
+
+if [ "$DEVICE" = "pigeon_wm150_tiny" ]
+then
+  DEVICE_REAL_NAME="DJI HD FPV Caddx Vista"
+  DJI_STARTUP_PATH=$DJI_STARTUP_PATH_VISTA
+fi
+
+if [ "$DEVICE_REAL_NAME" = "UNKNOWN" ]
+then
+  echo $DEVICE >> $DEBUG_PATH
+  echo "Error: Unknown device '$DEVICE' - aborted"
+  debugAndExit
+fi
+
+echo "Detected device: $DEVICE_REAL_NAME"
+
 echo "Validating prerequesits:"
 verifyPrerequesits
 
@@ -137,7 +164,7 @@ echo "Preparing entware environment:"
 if [ ! -d "$ENTWARE_PATH" ]
 then
   echo "  - Creating entware base directory..."
-  mkdir $ENTWARE_PATH >> $DEBUG_PATH 2>&1
+  mkdir -p $ENTWARE_PATH
 
   if [ $? -ne 0 ]
   then
@@ -151,7 +178,7 @@ echo " - Setting up entware environment..."
 $ENTWARE_SETUP_PATH $ENTWARE_PATH >> $DEBUG_PATH 2>&1
 
 # Install entware if directory is empty
-if [ "$(ls $ENTWARE_PATH) | wc -l" = 0 ]
+if [ "$(ls $ENTWARE_PATH | wc -l)" = 0 ]
 then
   echo "  - Installing entware..."
   wget -q -O - ${ENTWARE_URL} | sh >> $DEBUG_PATH 2>&1
